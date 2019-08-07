@@ -1,0 +1,2 @@
+gui
+-DCMAKE_BUILD_TYPE=Debug -G Unix Makefiles -DCATKIN_DEVEL_PREFIX=/home/wp/waveglider_new/devel_isolated -DCMAKE_INSTALL_PREFIX=/home/wp/waveglider_new/install_isolated

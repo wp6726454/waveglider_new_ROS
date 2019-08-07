@@ -1,0 +1,12 @@
+<launch>
+  <node pkg="guidance" name="station_keeping" type="stationkeeping.py">
+    
+    <rosparam>
+       set_point: [0,0]
+       radius:10
+     
+    </rosparam>
+
+  </node>
+
+</launch>

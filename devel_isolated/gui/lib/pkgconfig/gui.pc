@@ -1,0 +1,8 @@
+prefix=/home/wp/waveglider_new/devel_isolated/gui
+
+Name: gui
+Description: Description of gui
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/wp/waveglider_new/devel_isolated/gui/lib 
+Requires: 

@@ -1,0 +1,17 @@
+<launch>
+  <node pkg="guidance" name="fath_following" type="path_following.py">
+    
+    <rosparam>
+       waypoints: [ [0,0]
+                    [100,100]
+                    [200,200]
+                    [250,300]
+                    [400,350] ]
+       radius:10
+       deta:20
+     
+    </rosparam>
+
+  </node>
+
+</launch>

@@ -1,0 +1,8 @@
+prefix=/home/wp/waveglider_new/install
+
+Name: controllor
+Description: Description of controllor
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/wp/waveglider_new/install/lib 
+Requires: 

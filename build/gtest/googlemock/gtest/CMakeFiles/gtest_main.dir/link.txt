@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -g  -shared -Wl,-soname,libgtest_main.so -o libgtest_main.so CMakeFiles/gtest_main.dir/src/gtest_main.cc.o  -L/home/wp/waveglider_new/build/gtest/googlemock/gtest/src -Wl,-rpath,/home/wp/waveglider_new/build/gtest/googlemock/gtest/src:/home/wp/waveglider_new/build/gtest/googlemock/gtest -lpthread libgtest.so -lpthread 
