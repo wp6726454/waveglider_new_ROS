@@ -393,6 +393,12 @@ rostime_DIR:PATH=/opt/ros/melodic/share/rostime/cmake
 //The directory containing a CMake configuration file for std_msgs.
 std_msgs_DIR:PATH=/opt/ros/melodic/share/std_msgs/cmake
 
+//Value Computed by CMake
+test_BINARY_DIR:STATIC=/home/wp/waveglider_new/build/test
+
+//Value Computed by CMake
+test_SOURCE_DIR:STATIC=/home/wp/waveglider_new/src/test
+
 
 ########################
 # INTERNAL cache entries

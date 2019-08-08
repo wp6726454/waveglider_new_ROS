@@ -16,7 +16,8 @@ def millerToXY (lon, lat):
  y = 1.25*math.log(math.tan(0.25*math.pi+0.4*y))
  x = (W/2)+(W/(2*math.pi))*x
  y = (H/2)-(H/(2*mill))*y
- xy_coordinate.append((int(round(x)),int(round(y))))
+ xy_coordinate.append(int(round(x)))
+ xy_coordinate.append(int(round(y)))
  return xy_coordinate
 
 """

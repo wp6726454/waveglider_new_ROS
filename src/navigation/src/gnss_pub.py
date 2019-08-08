@@ -2,7 +2,7 @@
 '''BD ROS Node'''
 # license removed for brevity
 import rospy
-from std_msgs.msg import UInt64MultiArray
+from std_msgs.msg import Float32MultiArray
 import serial
 import math
 import json
@@ -23,12 +23,13 @@ def millerToXY (lon, lat):
     y = 1.25*math.log(math.tan(0.25*math.pi+0.4*y))
     x = (W/2)+(W/(2*math.pi))*x
     y = (H/2)-(H/(2*mill))*y
-    xy_coordinate.append((int(round(x)),int(round(y))))
+    xy_coordinate.append(int(round(x)))
+    xy_coordinate.append(int(round(y)))
     return xy_coordinate
 
 def talker():
     '''lmu Publisher'''
-    pub = rospy.Publisher('/position_real', UInt64MultiArray, queue_size=10)
+    pub = rospy.Publisher('/position_real', Float32MultiArray, queue_size=10)
     rospy.init_node('gnss', anonymous=True)
     rate = rospy.Rate(1) # 10hz
     try:
@@ -56,8 +57,8 @@ def talker():
         json.dump(lat,lat_obj)
 
     count = len(open(lon_save, 'r').readlines())
-    if count <200:
-        continue
+    if count < 200:
+        pass
     else:
         for line in fileinput.input('lon.json', inplace=1):
             if not fileinput.isfirstline():
@@ -85,15 +86,16 @@ def talker():
     if len(lat)<20:
         lat_publish=lat
     else:
-        lat.reverse()
-        lat_filter=lon[0:19]
+        lat_read.reverse()
+        lat_filter=lat_read[0:19]
         lat_filter.remove(max(lat_filter))
         lat_filter.remove(min(lat_filter))
         lat_publish=sum(lat_filter)/len(lat_filter)
 
     while not rospy.is_shutdown():
                 pos = millerToXY(lon_publish, lat_publish)
-                pos_xy = [-pos[1],pos[0]]
+                pos_1 = [-pos[1],pos[0]]
+                pos_xy = Float32MultiArray(data=pos_1)
                 pub.publish(pos_xy)
                 rate.sleep()
 
