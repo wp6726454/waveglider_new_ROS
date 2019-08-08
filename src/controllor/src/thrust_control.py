@@ -3,36 +3,47 @@
 import rospy
 from std_msgs.msg import Float64
 import pigpio
+from PID import PID
 
-pi.set_PWM_frequency(23,50)  #根据实际连接接口确定
-pi.set_PWM_range(23,20000)
+class PID_controllor():
+
+    def __init__(self):
+          rospy.init_node('pwmbuilder', anonymous=True)
+          rate = rospy.Rate(10) # 10hz
+          rospy.Subscriber("/course_real", Float64, self.callback_real)
+          rospy.Subscriber("/course_desired", Float64, self.callback_desired)
+          rate.sleep()
 
 
-def callback(data):
-    '''thrust_control Callback Function'''
-    rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-    try:
-        while Ture:
-            pi.set_PWM_dutycycle(23,data.data)
+    def callback_real(self, msg):
+        
+        global course_real 
+        course_real = msg.data
+        rospy.loginfo("the real course now is : %f", msg.data)
+        
+    def callback_desired(self, msg):
 
-    except:
-        pass
-    eve.stop()
-    GPIO.cleanup
+        global course_desired 
+        course_desired = msg.data
+        rospy.loginfo("the desired course now is : %f", msg.data)
 
-def listener():
-    '''thrust_control Subscriber'''
-    # In ROS, nodes are uniquely named. If two nodes with the same
-    # node are launched, the previous one is kicked off. The
-    # anonymous=True flag means that rospy will choose a unique
-    # name for our 'listener' node so that multiple listeners can
-    # run simultaneously.
-    rospy.init_node('thrust_control', anonymous=True)
+    def pwm(self, course_desired, course_real):
+        
+        self.controllor = PID(kp, kd, ki, minOutput, maxOutput, integratorMin, integratorMax)
+        F=self.controller.update(course_real, course_desired)
+        dc=-2.979e-07*F^6 + 1.496e-05*F^5 + 0.0003753*F^4 - 0.02246*F^3 -0.1342*F^2 + 21.09*F + 1497
+        pi = pigpio.pi()
+        pi.set_PWM_frequency(23,50)  #根据实际连接接口确定
+        pi.set_PWM_range(23,20000)
+        try:
+            while Ture:
+                pi.set_PWM_dutycycle(23,dc)
 
-    rospy.Subscriber("pwm_signal", Float64, callback)
+        except:
+            pass
+        pi.stop()
 
-    # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
 
 if __name__ == '__main__':
-    listener()
+    rospy.spin()
+    PID_controllor()
