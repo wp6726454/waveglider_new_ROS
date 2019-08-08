@@ -6,7 +6,8 @@ from std_msgs.msg import Float64
 import serial
 import numpy as np
 from math import sin, cos, atan
-
+import json
+import fileinput
 
 '''
 def datafilter(input):
@@ -50,10 +51,35 @@ def talker():
             Hy=m_y*cos(thita)+m_x*sin(thita)*sin(eta)-m_z*cos(eta)*sin(thita)
             Hx=m_x*cos(eta)+m_z*sin(eta)
             phi=atan(Hy/Hx)
+            
+            phi_save='phi.json'
+            with open(phi_save,'w') as phi_obj:
+                json.dump(phi,phi_obj)
 
+            count = len(open(phi_save, 'r').readlines())
+            if count <200:
+                continue
+            else:
+                for line in fileinput.input('phi.json', inplace=1):
+                    if not fileinput.isfirstline():
+                        print(line.replace('\n',''))
+
+            phi_read=[]
+            with open(phi_save) as f:
+                for line in f:
+                    phi_read.append(line.strip('\n'))
+            phi_read = list(map(float, phi_read))
+            if len(phi_read) < 20:
+                phi_publish=phi
+            else:
+                phi_read.reverse()
+                phi_filter=phi_read[0:19]
+                phi_filter.remove(max(phi_filter))
+                phi_filter.remove(min(phi_filter))
+                phi_publish=sum(phi_filter)/len(phi_filter)
 
             while not rospy.is_shutdown():
-                pub.publish(phi)
+                pub.publish(phi_publish)
                 rate.sleep()
 
 if __name__ == '__main__':
