@@ -165,8 +165,8 @@ class RMS_show(QMainWindow,Ui_RMS):
         Lat_real_get = data.data[0]
         global Lon_real_get
         Lon_real_get = data.data[1]
-        self.Lat_real.setValue(Lat_real_get)
-        self.Lon_real.setValue(Lon_real_get)
+        self.Lat_real.setText(Lat_real_get)
+        self.Lon_real.setText(Lon_real_get)
    
     def CallBackFunctions(self):
         self.Timer.timeout.connect(self.Showtime)
