@@ -9,17 +9,6 @@ from math import sin, cos, atan
 import json
 import fileinput
 
-'''
-def datafilter(input):
-    ''采集连续的20个数据去掉最大值和最小值之后取中值'
-    datalist = []
-    if len(datalist)<20:
-        datalist.append(input)
-    else:
-        del datalist[0]
-        datalist.append(input)
-    return(sum(datalist)/len(datalist))
-''' 
 def talker():
     '''lmu Publisher'''
     pub = rospy.Publisher('/course_real', Float64, queue_size=10)
@@ -27,7 +16,6 @@ def talker():
     rate = rospy.Rate(10) # 10hz
     try:
         ser=serial.Serial('/dev/ttyACM0',9600)
-
     except Exception:
         print 'open serial failed.'
         exit(1)
@@ -45,17 +33,16 @@ def talker():
             m_y=float(am[11])
             m_z=float(am[13])
 
-    
+            #计算航向
             eta=atan(a_x/(np.sqrt(np.square(a_y)+np.square(a_z))))
             thita=atan(a_y/(np.sqrt(np.square(a_x)+np.square(a_z))))
             Hy=m_y*cos(thita)+m_x*sin(thita)*sin(eta)-m_z*cos(eta)*sin(thita)
             Hx=m_x*cos(eta)+m_z*sin(eta)
             phi=atan(Hy/Hx)
-            
+            #滤波程序
             phi_save='phi.json'
             with open(phi_save,'w') as phi_obj:
                 json.dump(phi,phi_obj)
-
             count = len(open(phi_save, 'r').readlines())
             if count <200:
                 continue

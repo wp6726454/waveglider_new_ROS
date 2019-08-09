@@ -11,22 +11,6 @@ import fileinput
 #import numpy as np
 #from math import sin, cos, atan
 
-#经纬度转换为平面坐标系中的x,y 利用米勒坐标系
-def millerToXY (lon, lat):
-    xy_coordinate = []  # 转换后的XY坐标集
-    L = 6381372*math.pi*2
-    W = L
-    H = L/2
-    mill = 2.3
-    x = lon*math.pi/180
-    y = lat*math.pi/180
-    y = 1.25*math.log(math.tan(0.25*math.pi+0.4*y))
-    x = (W/2)+(W/(2*math.pi))*x
-    y = (H/2)-(H/(2*mill))*y
-    xy_coordinate.append(int(round(x)))
-    xy_coordinate.append(int(round(y)))
-    return xy_coordinate
-
 def talker():
     '''lmu Publisher'''
     pub = rospy.Publisher('/position_real', Float32MultiArray, queue_size=10)
@@ -34,11 +18,9 @@ def talker():
     rate = rospy.Rate(1) # 10hz
     try:
         ser=serial.Serial('/dev/ttyUSB0',9600)
-
     except Exception:
         print 'open serial failed.'
         exit(1)
-
     while True:
         s = ser.readline()
         am = str(s).strip().split(" ")
@@ -47,15 +29,13 @@ def talker():
         else:
             lon=float(am[11])
             lat=float(am[12])
-            
+   #滤波程序         
     lon_save='lon.json'
     lat_save='lat.json'
-
     with open(lon_save,'w') as lon_obj:
         json.dump(lon,lon_obj)
     with open(lat_save,'w') as lat_obj:
         json.dump(lat,lat_obj)
-
     count = len(open(lon_save, 'r').readlines())
     if count < 200:
         pass
@@ -63,7 +43,6 @@ def talker():
         for line in fileinput.input('lon.json', inplace=1):
             if not fileinput.isfirstline():
                 print(line.replace('\n',''))
-
     lon_read=[]
     with open(lon_save) as f:
         for line in f:
@@ -77,7 +56,6 @@ def talker():
         lon_filter.remove(max(lon_filter))
         lon_filter.remove(min(lon_filter))
         lon_publish=sum(lon_filter)/len(lon_filter)
-
     lat_read=[]
     with open(lat_save) as f:
         for line in f:
@@ -93,12 +71,11 @@ def talker():
         lat_publish=sum(lat_filter)/len(lat_filter)
 
     while not rospy.is_shutdown():
-                pos = millerToXY(lon_publish, lat_publish)
-                pos_1 = [-pos[1],pos[0]]
-                pos_xy = Float32MultiArray(data=pos_1)
-                pub.publish(pos_xy)
-                rate.sleep()
-
+        pos_1 = [lon_publish, lat_publish]
+        pos = Float32MultiArray(data=pos_1)
+        pub.publish(pos)
+        rate.sleep()
+        
 if __name__ == '__main__':
     try:
         talker()

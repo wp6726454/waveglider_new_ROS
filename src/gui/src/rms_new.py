@@ -10,7 +10,7 @@ from PyQt5.QtCore import QTimer, QCoreApplication, QDateTime
 from RMS import Ui_RMS
 from std_msgs.msg import Float32MultiArray
 from CoordinateTransfer import millerToXY
-from std_msgs.msg import String
+from std_msgs.msg import String, Int8
 
 
 
@@ -44,7 +44,9 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.Point4_Lon.setEnabled(True)
         self.Point5_Lat.setEnabled(True)
         self.Point5_Lon.setEnabled(True)
-   
+        self.Lat_real.setEnabled(False)
+        self.Lon_real.setEnabled(False)
+        self.Date.setEnabled(False)
     def Start(self):
         self.PushButton_start.setEnabled(False)
         self.PushButton_suspend.setEnabled(True)
@@ -68,13 +70,19 @@ class RMS_show(QMainWindow,Ui_RMS):
   
     def Showtime(self):
         time = QDateTime.currentDateTime()
-        timeDisplay = time.toString("yyyy-MM-dd hh:mm:ss dddd")
+        timeDisplay = time.toString("yyyy-MM-dd hh:mm:ss")
         self.Date.setText(timeDisplay)
     
     def Publishfun(self):
+        #创建节点
         rospy.init_node('RMS_UI', anonymous=True)
-        #rate = rospy.Rate(1)  # 1hz
+        #创建一个glag
+        self.flag_pub = rospy.Publisher('/flag', Int8, queue_size=10)
+        #Realposition订阅者创建
+        rospy.Subscriber("/position_real", Float32MultiArray, self.Position_show)
         if self.checkBox_1.isChecked():
+            self.flag = 1
+            self.flag_pub.publish(self.flag)
         #positionkeeping发布者创建
             self.positionkeeping_pub = rospy.Publisher('/set_point', Float32MultiArray, queue_size=10)
             setpoint = millerToXY(float(self.PositionKeeping_Lon.text()),float(self.PositionKeeping_Lat.text()))
@@ -85,6 +93,8 @@ class RMS_show(QMainWindow,Ui_RMS):
             self.textEdit.setText("The Positionkeeping point is set successfully")
 
         elif self.checkBox_2.isChecked():
+            self.flag = 2
+            self.flag_pub.publish(self.flag)
         #pathfollowing发布者创建
             self.pathfollowing_pub = rospy.Publisher('/waypoints', Float32MultiArray, queue_size=10)
             Point1_xy = millerToXY(float(self.Point1_Lon.text()),float(self.Point1_Lat.text()))               
@@ -97,9 +107,15 @@ class RMS_show(QMainWindow,Ui_RMS):
             self.pathfollowing_pub.publish(waypoints_xy)
             rospy.loginfo(waypoints_xy.data)
             self.textEdit.setText("The pointsway is set successfully")
-
         else:
             pass
+
+    def Position_show(self,data):
+        Lon_real_get = data.data[0]
+        Lat_real_get = data.data[1]
+        self.Lat_real.setText(Lat_real_get)
+        self.Lon_real.setText(Lon_real_get)
+
     def Suspend(self):
         self.Timer.stop()
         self.PushButton_start.setEnabled(True)
@@ -126,7 +142,6 @@ class RMS_show(QMainWindow,Ui_RMS):
 
 
 if __name__ == '__main__':
-    #while not rospy.is_shutdown():
         try:
             app = QApplication(sys.argv)
             ui=RMS_show()
