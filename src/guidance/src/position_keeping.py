@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#encoding:utf-8 
 '''position_keeping ROS Node'''
 import rospy
 from std_msgs.msg import Float32MultiArray
@@ -10,17 +11,19 @@ from numpy import *
 class Position_keeping():
 
     def __init__(self):
-        rospy.init_node('station_keeping', anonymous=True)
+        rospy.init_node('position_keeping', anonymous=True)
         rate = rospy.Rate(1) # 1hz
         rospy.Subscriber("/position_real", Float32MultiArray, self.Realposition)
         rospy.Subscriber("/set_point", Float32MultiArray, self.Setposition)
         rospy.Subscriber("/flag", Int8, self.Callback)
         self.pub = rospy.Publisher('/course_desired', Float64, queue_size=10)
         self.radius = 10
+        self.real_position = zeros(2)
+        self.set_position = zeros(2)
         rate.sleep()
 
         #经纬度转换为平面坐标系中的x,y 利用米勒坐标系
-    def millerToXY(self,lon, lat):
+    def millerToXY(self,lon,lat):
         xy_coordinate = []  # 转换后的XY坐标集
         L = 6381372*math.pi*2
         W = L
@@ -31,12 +34,12 @@ class Position_keeping():
         y = 1.25*math.log(math.tan(0.25*math.pi+0.4*y))
         x = (W/2)+(W/(2*math.pi))*x
         y = (H/2)-(H/(2*mill))*y
-        xy_coordinate.append(int(round(x)))
-        xy_coordinate.append(int(round(y)))
+        xy_coordinate.append(float(round(x)))
+        xy_coordinate.append(float(round(y)))
         return xy_coordinate
     
     def Realposition(self,msg):
-        rospy.loginfo("wave glider position:: %s", str(msg.data))
+        rospy.loginfo("position keeping! wave glider position: %s", str(msg.data))
         pos = self.millerToXY(msg.data[0],msg.data[1])
         pos_1 = [-pos[1],pos[0]]
         self.real_position = pos_1
@@ -48,7 +51,7 @@ class Position_keeping():
         if msg.data == 1:
             self.course_desired=self.p_s(self.set_position[0],self.set_position[1],self.real_position[0],self.real_position[1])
             self.pub.publish(self.course_desired)
-            rospy.loginfo("wave glider desired course:: %f", self.course_desired)
+            rospy.loginfo("position keeping! wave glider desired course: %s", str(self.course_desired))
         else:
             pass
 

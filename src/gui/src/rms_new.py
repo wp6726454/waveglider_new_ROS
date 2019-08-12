@@ -76,7 +76,7 @@ class RMS_show(QMainWindow,Ui_RMS):
     def Publishfun(self):
         #创建节点
         rospy.init_node('RMS_UI', anonymous=True)
-        #创建一个glag
+        #创建一个flag
         self.flag_pub = rospy.Publisher('/flag', Int8, queue_size=10)
         #Realposition订阅者创建
         rospy.Subscriber("/position_real", Float32MultiArray, self.Position_show)
@@ -86,7 +86,7 @@ class RMS_show(QMainWindow,Ui_RMS):
         #positionkeeping发布者创建
             self.positionkeeping_pub = rospy.Publisher('/set_point', Float32MultiArray, queue_size=10)
             setpoint = millerToXY(float(self.PositionKeeping_Lon.text()),float(self.PositionKeeping_Lat.text()))
-            setpoint_1 = np.array([-setpoint[1],setpoint[0]])
+            setpoint_1 = [-setpoint[1],setpoint[0]]
             setpoint_xy = Float32MultiArray(data=setpoint_1)
             rospy.loginfo(setpoint_xy.data)
             self.positionkeeping_pub.publish(setpoint_xy)
@@ -102,8 +102,14 @@ class RMS_show(QMainWindow,Ui_RMS):
             Point3_xy = millerToXY(float(self.Point3_Lon.text()),float(self.Point3_Lat.text()))
             Point4_xy = millerToXY(float(self.Point4_Lon.text()),float(self.Point4_Lat.text()))
             Point5_xy = millerToXY(float(self.Point5_Lon.text()),float(self.Point5_Lat.text()))
-            waypoints_1 = np.array([[-Point1_xy[1],Point1_xy[0]],[-Point2_xy[1],Point2_xy[0]],[-Point3_xy[1],Point3_xy[0]],[-Point4_xy[1],Point4_xy[0]],[-Point5_xy[1],Point5_xy[0]]])
-            waypoints_xy = Float32MultiArray(data=waypoints_1)
+            pfpoint1 = [-Point1_xy[1],Point1_xy[0]]
+            pfpoint2 = [-Point2_xy[1],Point2_xy[0]]
+            pfpoint3 = [-Point3_xy[1],Point3_xy[0]]
+            pfpoint4 = [-Point4_xy[1],Point4_xy[0]]
+            pfpoint5 = [-Point5_xy[1],Point5_xy[0]]
+            waypoints_1 = [pfpoint1,pfpoint2,pfpoint3,pfpoint4,pfpoint5]
+            waypoints_xy = Float32MultiArray()
+            waypoints_xy.data = waypoints_1
             self.pathfollowing_pub.publish(waypoints_xy)
             rospy.loginfo(waypoints_xy.data)
             self.textEdit.setText("The pointsway is set successfully")
@@ -113,8 +119,8 @@ class RMS_show(QMainWindow,Ui_RMS):
     def Position_show(self,data):
         Lon_real_get = data.data[0]
         Lat_real_get = data.data[1]
-        self.Lat_real.setText(Lat_real_get)
-        self.Lon_real.setText(Lon_real_get)
+        self.Lat_real.setText(str(Lat_real_get))
+        self.Lon_real.setText(str(Lon_real_get))
 
     def Suspend(self):
         self.Timer.stop()
