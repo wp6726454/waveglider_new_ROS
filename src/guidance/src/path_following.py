@@ -3,6 +3,7 @@
 '''path_following ROS Node'''
 import rospy
 from std_msgs.msg import Float32MultiArray, Float64, Int8
+from gui.msg import pf
 import math
 from math import pi, acos, atan
 from numpy import *
@@ -15,7 +16,7 @@ class Path_following():
         rate = rospy.Rate(1) # 1hz
         self.pub = rospy.Publisher('/course_desired', Float64, queue_size=10)
         rospy.Subscriber("/position_real", Float32MultiArray, self.Realposition)
-        rospy.Subscriber("/waypoints", Float32MultiArray, self.Pointswayfun)
+        rospy.Subscriber("/waypoints", pf, self.Pointswayfun)
         rospy.Subscriber("/flag", Int8, self.Callback)
         self.radius = 10
         self.deta = 8
@@ -43,7 +44,7 @@ class Path_following():
 
         else:
             pass
-    def millerToXY(self,lon, lat):
+    def millerToXY(self,lon,lat):
         xy_coordinate = []  # 转换后的XY坐标集
         L = 6381372*math.pi*2
         W = L
@@ -65,7 +66,7 @@ class Path_following():
         self.realposition = np.array(pos_1)
         
     def Pointswayfun(self,msg):
-        self.pointsway = np.array(msg.data)
+        self.pointsway = np.array([[msg.p_1],[msg.p_2],[msg.p_3],[msg.p_4],[msg.p_5]])
 
     def Callback(self,msg):
         if msg.data == 2:

@@ -8,3 +8,4 @@
 
 # modified environment variables
 export PWD="/home/wp/waveglider_new/build"
+export PYTHONPATH="/home/wp/waveglider_new/devel/lib/python2.7/dist-packages:$PYTHONPATH"

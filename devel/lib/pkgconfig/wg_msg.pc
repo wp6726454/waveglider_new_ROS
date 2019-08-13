@@ -1,0 +1,8 @@
+prefix=/home/wp/waveglider_new/devel
+
+Name: wg_msg
+Description: Description of wg_msg
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/wp/waveglider_new/devel/lib 
+Requires: 

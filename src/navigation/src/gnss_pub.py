@@ -4,9 +4,9 @@
 import rospy
 from std_msgs.msg import Float32MultiArray
 import serial
-import math
-import json
-import fileinput
+#import math
+#import json
+#import fileinput
 #from lmu_pub import datafilter
 #import numpy as np
 #from math import sin, cos, atan
@@ -16,20 +16,26 @@ def talker():
     pub = rospy.Publisher('/position_real', Float32MultiArray, queue_size=10)
     rospy.init_node('gnss', anonymous=True)
     rate = rospy.Rate(1) # 10hz
-    try:
-        ser=serial.Serial('/dev/ttyUSB0',9600)
-    except Exception:
-        print 'open serial failed.'
-        exit(1)
-    while True:
-        s = ser.readline()
-        am = str(s).strip().split(" ")
-        if len(am)<30:
-            continue
-        else:
-            lon=float(am[11])
-            lat=float(am[12])
-   #滤波程序         
+    while not rospy.is_shutdown():
+        try:
+            ser=serial.Serial('/dev/ttyUSB0',9600)
+        except Exception:
+            print 'open serial failed.'
+            exit(1)
+        while True:
+            s = ser.readline()
+            am = str(s).strip().split(",")
+            if len(am)<30:
+                continue
+            else:
+                lon=float(am[11])
+                lat=float(am[12])
+                pos_1 = [lon, lat]
+                pos = Float32MultiArray(data=pos_1)
+                pub.publish(pos)
+                rospy.loginfo(pos.data)
+                rate.sleep()
+'''        
     lon_save='lon.json'
     lat_save='lat.json'
     with open(lon_save,'w') as lon_obj:
@@ -69,12 +75,8 @@ def talker():
         lat_filter.remove(max(lat_filter))
         lat_filter.remove(min(lat_filter))
         lat_publish=sum(lat_filter)/len(lat_filter)
-
-    while not rospy.is_shutdown():
-        pos_1 = [lon_publish, lat_publish]
-        pos = Float32MultiArray(data=pos_1)
-        pub.publish(pos)
-        rate.sleep()
+'''
+    
         
 if __name__ == '__main__':
     try:

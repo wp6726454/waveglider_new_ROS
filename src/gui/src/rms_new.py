@@ -8,6 +8,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, QCoreApplication, QDateTime
 from RMS import Ui_RMS
+from gui.msg import pf
 from std_msgs.msg import Float32MultiArray
 from CoordinateTransfer import millerToXY
 from std_msgs.msg import String, Int8
@@ -96,7 +97,7 @@ class RMS_show(QMainWindow,Ui_RMS):
             self.flag = 2
             self.flag_pub.publish(self.flag)
         #pathfollowing发布者创建
-            self.pathfollowing_pub = rospy.Publisher('/waypoints', Float32MultiArray, queue_size=10)
+            self.pathfollowing_pub = rospy.Publisher('/waypoints', pf, queue_size=10)
             Point1_xy = millerToXY(float(self.Point1_Lon.text()),float(self.Point1_Lat.text()))               
             Point2_xy = millerToXY(float(self.Point2_Lon.text()),float(self.Point2_Lat.text()))
             Point3_xy = millerToXY(float(self.Point3_Lon.text()),float(self.Point3_Lat.text()))
@@ -107,11 +108,17 @@ class RMS_show(QMainWindow,Ui_RMS):
             pfpoint3 = [-Point3_xy[1],Point3_xy[0]]
             pfpoint4 = [-Point4_xy[1],Point4_xy[0]]
             pfpoint5 = [-Point5_xy[1],Point5_xy[0]]
-            waypoints_1 = [pfpoint1,pfpoint2,pfpoint3,pfpoint4,pfpoint5]
-            waypoints_xy = Float32MultiArray()
-            waypoints_xy.data = waypoints_1
+            waypoints_xy = pf()
+            #waypoints_xy.data = [pfpoint1,pfpoint2,pfpoint3,pfpoint4,pfpoint5]
+            
+            waypoints_xy.p_1 = pfpoint1
+            waypoints_xy.p_2 = pfpoint2
+            waypoints_xy.p_3 = pfpoint3
+            waypoints_xy.p_4 = pfpoint4
+            waypoints_xy.p_5 = pfpoint5
+            
             self.pathfollowing_pub.publish(waypoints_xy)
-            rospy.loginfo(waypoints_xy.data)
+            rospy.loginfo("path following! the way_points are: %s %s %s %s %s", waypoints_xy.p_1, waypoints_xy.p_2, waypoints_xy.p_3, waypoints_xy.p_4, waypoints_xy.p_5)
             self.textEdit.setText("The pointsway is set successfully")
         else:
             pass

@@ -3,6 +3,6 @@ prefix=/home/wp/waveglider_new/devel
 Name: gui
 Description: Description of gui
 Version: 0.0.0
-Cflags: 
+Cflags: -I/home/wp/waveglider_new/devel/include
 Libs: -L/home/wp/waveglider_new/devel/lib 
-Requires: 
+Requires: message_runtime

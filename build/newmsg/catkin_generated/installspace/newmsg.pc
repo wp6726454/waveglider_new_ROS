@@ -1,0 +1,8 @@
+prefix=/home/wp/waveglider_new/install
+
+Name: newmsg
+Description: Description of newmsg
+Version: 0.0.0
+Cflags: -I/home/wp/waveglider_new/install/include
+Libs: -L/home/wp/waveglider_new/install/lib 
+Requires: message_runtime
