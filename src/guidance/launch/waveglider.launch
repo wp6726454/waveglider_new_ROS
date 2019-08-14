@@ -1,0 +1,26 @@
+<launch>
+  <node pkg="guidance" 
+  name="position_keeping" 
+  type="position_keeping.py"
+  output="screen">
+  </node>
+
+  <node pkg="guidance" 
+  name="path_following" 
+  type="path_following.py" 
+  output="screen">
+  </node>
+
+  <node pkg="gui" 
+  name="RMS_UI" 
+  type="rms_new.py" 
+  output="screen">
+  </node>
+
+  <node 
+  pkg="navigation" 
+  name="BDtest" 
+  type="BDtest_pub.py" 
+  output="screen">
+  </node>
+</launch>
