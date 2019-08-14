@@ -66,7 +66,7 @@ class Path_following():
         self.realposition = np.array(pos_1)
         
     def Pointswayfun(self,msg):
-        self.pointsway = np.array([[msg.p_1],[msg.p_2],[msg.p_3],[msg.p_4],[msg.p_5]])
+        self.pointsway = np.array([msg.p_1,msg.p_2,msg.p_3,msg.p_4,msg.p_5])
 
     def Callback(self,msg):
         if msg.data == 2:
@@ -92,8 +92,8 @@ class Path_following():
             B=self.pointsway[b,0]-self.pointsway[b+1,0]
             C=self.pointsway[b+1,0]*self.pointsway[b,1]-self.pointsway[b,0]*self.pointsway[b+1,1]
             #求垂足
-            y0=(B*B*self.realposition[1]-A*B*self.realposition[0]-A*C)/(A*A+B*B)
-            x0=(-A*B*self.realposition[1]+A*A*self.realposition[0]-B*C)/(A*A+B*B)
+            y0=(B*B*self.realposition[0]-A*B*self.realposition[1]-A*C)/(A*A+B*B)
+            x0=(-A*B*self.realposition[0]+A*A*self.realposition[1]-B*C)/(A*A+B*B)
             yd=y0-np.sign(self.pointsway[b,0]-self.pointsway[b+1,0])*np.sqrt(np.square(self.deta)/np.square(1+(abs(self.pointsway[b,1]-self.pointsway[b+1,1])/\
             (self.pointsway[b,0]-self.pointsway[b+1,0]))))
             xd=x0-np.sign(self.pointsway[b,1]-self.pointsway[b+1,1])*(abs((self.pointsway[b,1]-self.pointsway[b+1,1])/(self.pointsway[b,0]-self.pointsway[b+1,0])))*\
@@ -105,8 +105,8 @@ class Path_following():
             B=self.pointsway[b-1,0]-self.pointsway[b,0]
             C=self.pointsway[b,0]*self.pointsway[b-1,1]-self.pointsway[b-1,0]*self.pointsway[b,1]
             #求垂足
-            y0=(B*B*self.realposition[1]-A*B*self.realposition[0]-A*C)/(A*A+B*B)
-            x0=(-A*B*self.realposition[1]+A*A*self.realposition[0]-B*C)/(A*A+B*B)
+            y0=(B*B*self.realposition[0]-A*B*self.realposition[1]-A*C)/(A*A+B*B)
+            x0=(-A*B*self.realposition[0]+A*A*self.realposition[1]-B*C)/(A*A+B*B)
             yd=y0-np.sign(self.pointsway[b-1,0]-self.pointsway[b,0])*np.sqrt(np.square(self.deta)/np.square(1+(abs(self.pointsway[b-1,1]-self.pointsway[b,1])/\
             (self.pointsway[b-1,0]-self.pointsway[b,0]))))
             xd=x0-np.sign(self.pointsway[b-1,1]-self.pointsway[b,1])*(abs((self.pointsway[b-1,1]-self.pointsway[b,1])/(self.pointsway[b-1,0]-self.pointsway[b,0])))*\
@@ -123,8 +123,8 @@ class Path_following():
                 B=self.pointsway[b-1,0]-self.pointsway[b,0]
                 C=self.pointsway[b,0]*self.pointsway[b-1,1]-self.pointsway[b-1,0]*self.pointsway[b,1]
                 #求垂足
-                y0=(B*B*self.realposition[1]-A*B*self.realposition[0]-A*C)/(A*A+B*B)
-                x0=(-A*B*self.realposition[1]+A*A*self.realposition[0]-B*C)/(A*A+B*B)
+                y0=(B*B*self.realposition[0]-A*B*self.realposition[1]-A*C)/(A*A+B*B)
+                x0=(-A*B*self.realposition[0]+A*A*self.realposition[1]-B*C)/(A*A+B*B)
                 yd=y0-np.sign(self.pointsway[b-1,0]-self.pointsway[b,0])*np.sqrt(np.square(self.deta)/np.square(1+(abs(self.pointsway[b-1,1]-self.pointsway[b,1])/\
                 (self.pointsway[b-1,0]-self.pointsway[b,0]))))
                 xd=x0-np.sign(self.pointsway[b-1,1]-self.pointsway[b,1])*(abs((self.pointsway[b-1,1]-self.pointsway[b,1])/(self.pointsway[b-1,0]-self.pointsway[b,0])))*\
@@ -137,8 +137,8 @@ class Path_following():
                 B=self.pointsway[b,0]-self.pointsway[b+1,0]
                 C=self.pointsway[b+1,0]*self.pointsway[b,1]-self.pointsway[b,0]*self.pointsway[b+1,1]
                 #求垂足
-                y0=(B*B*self.realposition[1]-A*B*self.realposition[0]-A*C)/(A*A+B*B)
-                x0=(-A*B*self.realposition[1]+A*A*self.realposition[0]-B*C)/(A*A+B*B)
+                y0=(B*B*self.realposition[0]-A*B*self.realposition[1]-A*C)/(A*A+B*B)
+                x0=(-A*B*self.realposition[0]+A*A*self.realposition[1]-B*C)/(A*A+B*B)
                 yd=y0-np.sign(self.pointsway[b,0]-self.pointsway[b+1,0])*np.sqrt(np.square(self.deta)/np.square(1+(abs(self.pointsway[b,1]-self.pointsway[b+1,1])/\
                 (self.pointsway[b,0]-self.pointsway[b+1,0]))))
                 xd=x0-np.sign(self.pointsway[b,1]-self.pointsway[b+1,1])*(abs((self.pointsway[b,1]-self.pointsway[b+1,1])/(self.pointsway[b,0]-self.pointsway[b+1,0])))*\

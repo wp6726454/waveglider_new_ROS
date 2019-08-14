@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-'''pftest ROS Node'''
+'''lmutest ROS Node'''
 # license removed for brevity
 import rospy
 from std_msgs.msg import Float64
 
 def talker():
-    '''pftest Publisher'''
-    pub = rospy.Publisher('/course_desired', Float64, queue_size=10)
-    rospy.init_node('pftest', anonymous=True)
+    '''lmutest Publisher'''
+    pub = rospy.Publisher('/course_real', Float64, queue_size=10)
+    rospy.init_node('lmutest', anonymous=True)
     rate = rospy.Rate(1) # 1hz
     while not rospy.is_shutdown():
-        course_des = 1.0
-        rospy.loginfo("The customized desired course is: %s", str(course_des) )
-        pub.publish(course_des)
+        course_real = 2.0
+        rospy.loginfo("The customized real course is : %s", str(course_real))
+        pub.publish(course_real)
         rate.sleep()
 
 if __name__ == '__main__':

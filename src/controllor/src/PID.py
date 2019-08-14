@@ -41,7 +41,7 @@ class PID (object):
    def update (self, value, targetValue):
 
       # record current value and target value and find current time
-      rospy.loginfo("values are %f and %f", value, targetValue)
+      #rospy.loginfo("values are %f and %f", value, targetValue)
       time = float(rospy.Time.to_sec(rospy.Time.now()))
 
       # delta time is the time since the last update
