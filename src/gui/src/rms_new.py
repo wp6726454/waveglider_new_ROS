@@ -5,6 +5,7 @@
 import rospy
 import numpy as np
 import sys
+import json
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, QCoreApplication, QDateTime
 from RMS import Ui_RMS
@@ -126,6 +127,10 @@ class RMS_show(QMainWindow,Ui_RMS):
     def Position_show(self,data):
         Lon_real_get = data.data[0]
         Lat_real_get = data.data[1]
+        position=[Lon_real_get,Lat_real_get]
+        position_real='position_real.json'
+        with open(position_real,'a') as position_obj:
+            position_obj.write('\n'+str(position))
         self.Lat_real.setText(str(Lat_real_get))
         self.Lon_real.setText(str(Lon_real_get))
 
