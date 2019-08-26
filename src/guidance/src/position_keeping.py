@@ -15,6 +15,7 @@ class Position_keeping():
         rate = rospy.Rate(1) # 1hz
         rospy.Subscriber("/position_real", Float32MultiArray, self.Realposition)
         rospy.Subscriber("/set_point", Float32MultiArray, self.Setposition)
+        rospy.Subscriber('/course_real', Float64, self.Realcourse)        
         rospy.Subscriber("/flag", Int8, self.Callback)
         self.pub = rospy.Publisher('/course_desired', Float64, queue_size=10)
         self.radius = 10
@@ -47,6 +48,9 @@ class Position_keeping():
     def Setposition(self,msg):
         self.set_position = msg.data
 
+    def Realcourse(self,msg):
+        self.realcourse = msg.data
+
     def Callback(self,msg):
         if msg.data == 1:
             self.course_desired=self.p_s(self.set_position[0],self.set_position[1],self.real_position[0],self.real_position[1])
@@ -71,11 +75,10 @@ class Position_keeping():
                 phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x)) - pi           
             else:
                 phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x))
-            return (phid)
-
         else:
-            pass
-            
+            phid = self.realcourse
+
+        return (phid)
 
 
 if __name__ == '__main__':

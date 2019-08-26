@@ -17,6 +17,7 @@ class Path_following():
         self.pub = rospy.Publisher('/course_desired', Float64, queue_size=10)
         rospy.Subscriber("/position_real", Float32MultiArray, self.Realposition)
         rospy.Subscriber("/waypoints", pf, self.Pointswayfun)
+        rospy.Subscriber('/course_real', Float64, self.Realcourse) 
         rospy.Subscriber("/flag", Int8, self.Callback)
         self.radius = 10
         self.deta = 8
@@ -40,10 +41,12 @@ class Path_following():
                 phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x)) - pi           
             else:
                 phid = atan((setpoint_y-realposition_y)/(setpoint_x-realposition_x))
-            return (phid)
 
         else:
-            pass
+            phid = self.realcourse
+
+        return phid
+        
     def millerToXY(self,lon,lat):
         xy_coordinate = []  # 转换后的XY坐标集
         L = 6381372*math.pi*2
@@ -67,6 +70,9 @@ class Path_following():
         
     def Pointswayfun(self,msg):
         self.pointsway = np.array([msg.p_1,msg.p_2,msg.p_3,msg.p_4,msg.p_5])
+
+    def Realcourse(self,msg):
+        self.realcourse = msg.data
 
     def Callback(self,msg):
         if msg.data == 2:

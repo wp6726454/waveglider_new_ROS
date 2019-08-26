@@ -5,6 +5,7 @@
 import rospy
 import numpy as np
 import sys
+import json
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, QCoreApplication, QDateTime
 from RMS import Ui_RMS
@@ -24,7 +25,16 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.Timer=QTimer()
         self.CallBackFunctions()
         self.textEdit.setText("Please input setpoint or waypoints")
- 
+        #创建节点
+        rospy.init_node('RMS_UI', anonymous=True)
+        #创建一个flag
+        self.flag_pub = rospy.Publisher('/flag', Int8, queue_size=10)
+        #Realposition订阅者创建
+        rospy.Subscriber("/position_real", Float32MultiArray, self.Position_show)
+        #positionkeeping发布者创建
+        self.positionkeeping_pub = rospy.Publisher('/set_point', Float32MultiArray, queue_size=10)
+        #pathfollowing发布者创建
+        self.pathfollowing_pub = rospy.Publisher('/waypoints', pf, queue_size=10)
 
     def PrepWidgets(self):
         self.checkBox_1.setEnabled(False)
@@ -48,6 +58,7 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.Lat_real.setEnabled(False)
         self.Lon_real.setEnabled(False)
         self.Date.setEnabled(False)
+
     def Start(self):
         self.PushButton_start.setEnabled(False)
         self.PushButton_suspend.setEnabled(True)
@@ -75,17 +86,10 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.Date.setText(timeDisplay)
     
     def Publishfun(self):
-        #创建节点
-        rospy.init_node('RMS_UI', anonymous=True)
-        #创建一个flag
-        self.flag_pub = rospy.Publisher('/flag', Int8, queue_size=10)
-        #Realposition订阅者创建
-        rospy.Subscriber("/position_real", Float32MultiArray, self.Position_show)
+        
         if self.checkBox_1.isChecked():
             self.flag = 1
             self.flag_pub.publish(self.flag)
-        #positionkeeping发布者创建
-            self.positionkeeping_pub = rospy.Publisher('/set_point', Float32MultiArray, queue_size=10)
             setpoint = millerToXY(float(self.PositionKeeping_Lon.text()),float(self.PositionKeeping_Lat.text()))
             setpoint_1 = [-setpoint[1],setpoint[0]]
             setpoint_xy = Float32MultiArray(data=setpoint_1)
@@ -96,8 +100,6 @@ class RMS_show(QMainWindow,Ui_RMS):
         elif self.checkBox_2.isChecked():
             self.flag = 2
             self.flag_pub.publish(self.flag)
-        #pathfollowing发布者创建
-            self.pathfollowing_pub = rospy.Publisher('/waypoints', pf, queue_size=10)
             Point1_xy = millerToXY(float(self.Point1_Lon.text()),float(self.Point1_Lat.text()))               
             Point2_xy = millerToXY(float(self.Point2_Lon.text()),float(self.Point2_Lat.text()))
             Point3_xy = millerToXY(float(self.Point3_Lon.text()),float(self.Point3_Lat.text()))
@@ -126,6 +128,10 @@ class RMS_show(QMainWindow,Ui_RMS):
     def Position_show(self,data):
         Lon_real_get = data.data[0]
         Lat_real_get = data.data[1]
+        position=[Lon_real_get,Lat_real_get]
+        position_real='position_real.json'
+        with open(position_real,'a') as position_obj:
+            position_obj.write('\n'+str(position))
         self.Lat_real.setText(str(Lat_real_get))
         self.Lon_real.setText(str(Lon_real_get))
 

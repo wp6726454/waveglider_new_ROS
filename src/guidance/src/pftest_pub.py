@@ -3,6 +3,7 @@
 # license removed for brevity
 import rospy
 from std_msgs.msg import Float64
+import random
 
 def talker():
     '''pftest Publisher'''
@@ -10,7 +11,7 @@ def talker():
     rospy.init_node('pftest', anonymous=True)
     rate = rospy.Rate(1) # 1hz
     while not rospy.is_shutdown():
-        course_des = 1.0
+        course_des = random.uniform(0, 1)
         rospy.loginfo("The customized desired course is: %s", str(course_des) )
         pub.publish(course_des)
         rate.sleep()

@@ -14,7 +14,6 @@ class PID_controllor():
         self.course_desired = 0.0
         rospy.Subscriber("/course_real", Float64, self.callback_real)
         rospy.Subscriber("/course_desired", Float64, self.callback_desired)
-        rate.sleep()
         controllor = PID(5, 6, 0.1, -10, 10, -0.5, 0.5)
         while not rospy.is_shutdown():
             #calculate thrust by PID
@@ -22,6 +21,7 @@ class PID_controllor():
             #calculate pwm signal
             dc=-2.9*F
             rospy.loginfo("the result is %f", dc)
+            rate.sleep()
 
 
     def callback_real(self, msg): 
