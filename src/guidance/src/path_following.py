@@ -65,7 +65,7 @@ class Path_following():
     def Realposition(self,msg):
         rospy.loginfo("path following! wave glider position: %s", str(msg.data))
         pos = self.millerToXY(msg.data[0],msg.data[1])
-        pos_1 = [-pos[1],pos[0]]
+        pos_1 = [pos[0],-pos[1]]
         self.realposition = np.array(pos_1)
         
     def Pointswayfun(self,msg):
@@ -76,7 +76,7 @@ class Path_following():
 
     def Callback(self,msg):
         if msg.data == 2:
-            self.course_desired=self.p_s(self.p_f()[0],self.p_f()[1],self.realposition[0],self.realposition[1])
+            self.course_desired=self.p_s(self.p_f()[0],self.p_f()[1],self.realposition[1],self.realposition[0])
             self.pub.publish(self.course_desired)
             rospy.loginfo("path following! wave glider desired course: %s", str(self.course_desired))
         else:
@@ -91,6 +91,7 @@ class Path_following():
             d[i]=np.linalg.norm(self.pointsway[i]-self.realposition)
         d=list(d)
         b = d.index(min(d)) #寻找最近轨迹点的位置
+        rospy.loginfo(b)
        
         if b==0:
 
