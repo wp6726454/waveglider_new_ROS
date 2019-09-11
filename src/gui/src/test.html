@@ -1,0 +1,135 @@
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=rCLm5vwlet2mG4SEqeO2isyyM5CsVdIC"></script>
+</head>
+</html>
+<body>
+    <input name="jingdu" type="text" id="jingdu" value="121.95309828" />
+    <input name="weidu" type="text" id="weidu" value="31.2777999" />
+
+    <br />
+    <div style="width:1400px;height:800px;border:1px solid gray" id="allmap"></div>
+</body>
+<script type="text/javascript">
+        // 百度地图API功能
+        var map = new BMap.Map("allmap");
+        //var map = new BMap.Map("allmap", { mapType: BMAP_SATELLITE_MAP });
+        var point = new BMap.Point(121.503789, 31.860026);
+        map.centerAndZoom(point, 14);
+        map.enableScrollWheelZoom();                  //启用滚轮放大缩小
+        //定位
+        var geolocation = new BMap.Geolocation();
+        geolocation.getCurrentPosition(function (r) {
+            if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                var mk = new BMap.Marker(r.point);
+                map.addOverlay(mk);
+                map.panTo(r.point);
+                //mk.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                mk.enableDragging();
+                //alert('您的位置：' + r.point.lng + ',' + r.point.lat);
+                document.getElementById("jingdu").value = r.point.lng;
+                document.getElementById("weidu").value = r.point.lat;
+            }
+            else {
+                //alert('failed' + this.getStatus());
+            }
+        }, { enableHighAccuracy: true })
+
+        //add city
+        map.addControl(new BMap.CityListControl({
+            anchor: BMAP_ANCHOR_TOP_LEFT
+        }));
+
+        //add click
+        function showInfo(e) {
+            //alert(e.point.lng + ", " + e.point.lat);
+            document.getElementById("jingdu").value = e.point.lng;
+            document.getElementById("weidu").value = e.point.lat;
+            var mk = new BMap.Marker(e.point);
+            map.addOverlay(mk);
+            map.panTo(e.point);
+            //mk.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+
+            deletePoint(); //删除所有标注
+        }
+        map.addEventListener("click", showInfo);
+
+        function deletePoint() 
+        {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length - 1; i++) {
+                map.removeOverlay(allOverlay[i]);
+            }
+        }
+
+var polyline;
+var flag = 0;
+function  drowLine(point)
+{
+	if (flag)
+	{
+		//alert(flag);
+		polyline.setPath(point);
+	}
+	else
+	{
+		   flag = 1;
+		   polyline =new BMap.Polyline(point, {
+		   //enableEditing: false,//是否启用线编辑，默认为false
+		   //enableClicking: true,//是否响应点击事件，默认为true
+		   //icons:[icons],
+		   strokeWeight:'3',//折线的宽度，以像素为单位
+		   strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
+		   strokeColor:"#18a45b" //折线颜色
+		});
+		bm.addOverlay(polyline);
+	}
+	
+}
+
+var marker;
+    //坐标转换完之后的回调函数
+    translateCallback = function (data){
+      if(data.status === 0) {
+		
+		if (marker)
+		{
+			marker.setPosition(data.points[0]);
+			poisArray.push(data.points[0]);
+			drowLine(poisArray);
+			if ( poisArray.length >= 10000)	 //防止内存一直增加，会卡，大于1w条时，清空一下					
+			{
+				poisArray=[];
+				poisArray.push(data.points[0]);
+			}
+		
+		}
+		else 
+		{
+			poisArray.push(data.points[0]);
+			marker = new BMap.Marker(data.points[0]);					
+			map.addOverlay(marker);
+		}
+ 
+        map.setCenter(data.points[0]);
+      }
+    }
+ 
+var polylineAttr = [];
+var poisArray = [];
+function doLocal(longitude, latitude)  //给qt调用的接口
+{
+	var OPoint = new BMap.Point(longitude,latitude);
+ 
+	var convertor = new BMap.Convertor();
+	var pointArr = [];
+	pointArr.push(OPoint);
+	convertor.translate(pointArr, 1, 5, translateCallback);	
+}
+
+
+</script>
+
+
