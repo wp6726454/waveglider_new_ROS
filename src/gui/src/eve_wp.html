@@ -1,0 +1,125 @@
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=rCLm5vwlet2mG4SEqeO2isyyM5CsVdIC"></script>
+</head>
+</html>
+<body>
+    <input name="jingdu" type="text" id="jingdu" value="121.95309828" />
+    <input name="weidu" type="text" id="weidu" value="31.2777999" />
+
+    <br />
+    <div style="width:1400px;height:800px;border:1px solid gray" id="allmap"></div>
+</body>
+<script type="text/javascript">
+        // 百度地图API功能
+        var map = new BMap.Map("allmap");
+        //var map = new BMap.Map("allmap", { mapType: BMAP_SATELLITE_MAP });
+        var point = new BMap.Point(106.652024, 26.617221);
+        map.centerAndZoom(point, 14);
+        map.enableScrollWheelZoom();                  //启用滚轮放大缩小
+        //定位
+        var geolocation = new BMap.Geolocation();
+        geolocation.getCurrentPosition(function (r) {
+            if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                var mk = new BMap.Marker(r.point);
+                map.addOverlay(mk);
+                map.panTo(r.point);
+                //mk.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                mk.enableDragging();
+                //alert('您的位置：' + r.point.lng + ',' + r.point.lat);
+                document.getElementById("jingdu").value = r.point.lng;
+                document.getElementById("weidu").value = r.point.lat;
+            }
+            else {
+                //alert('failed' + this.getStatus());
+            }
+        }, { enableHighAccuracy: true })
+
+        //add city
+        map.addControl(new BMap.CityListControl({
+            anchor: BMAP_ANCHOR_TOP_LEFT
+        }));
+
+        //add click
+        function showInfo(e) {
+            //alert(e.point.lng + ", " + e.point.lat);
+            document.getElementById("jingdu").value = e.point.lng;
+            document.getElementById("weidu").value = e.point.lat;
+            var mk = new BMap.Marker(e.point);
+            map.addOverlay(mk);
+            map.panTo(e.point);
+            //mk.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+
+            deletePoint(); //删除所有标注
+        }
+        map.addEventListener("click", showInfo);
+
+        function deletePoint() 
+        {
+            var allOverlay = map.getOverlays();
+            for (var i = 0; i < allOverlay.length - 1; i++) {
+                map.removeOverlay(allOverlay[i]);
+            }
+        }
+
+
+
+
+</script>
+<script src="http://c.cnzz.com/core.php"></script>
+<script type="text/javascript">
+	var startLong = 106.652024;
+	var startLat = 26.617221;
+	var endLong = 106.652024;
+	var endLat = 26.614221;
+ 
+	var linesPoints = null;
+   
+   setInterval(goWay,1000);
+   var carMk;
+   var myIcon = new BMap.Icon("http://sandbox.runjs.cn/uploads/rs/101/wmbvrxnx/kache.png", new BMap.Size(37,25), {imageOffset: new BMap.Size(0, 0)});//卡车
+   
+   function goWay(){
+	   startLong = endLong;
+	   startLat = endLat;
+	   endLong = getRound(endLong);
+	   endLat = getRound(endLat);
+	   
+	   drawIcon(startLong,startLat,endLong,endLat);
+	   //drawRedLine();
+   }
+   
+   function getRound(temp){
+	   var i = Math.round(Math.random()*9+1);
+	   if(i%2==0){
+		   return temp + i*0.0001;
+	   }else{
+		   return temp - i*0.0001;
+	   }
+   }
+  
+   
+   function drawGreenLine(startLong,startLat,endLong,endLat){
+	   var polyline = new BMap.Polyline([
+		                                  new BMap.Point(startLong,startLat),//起始点的经纬度
+		                                  new BMap.Point(endLong,endLat)//终止点的经纬度
+		                                  ], {strokeColor:"green",//设置颜色 
+		                                  strokeWeight:3, //宽度
+		                                  strokeOpacity:1});//透明度
+	   map.addOverlay(polyline);
+   }
+   
+ 
+   function drawIcon(startLong,startLat,endLong,endLat){
+	   if(carMk){
+		   map.removeOverlay(carMk);
+	   }
+	   carMk = new BMap.Marker(
+	               new BMap.Point(endLong,endLat),//起始点的经纬度
+	              {icon:myIcon});
+	   map.addOverlay(carMk);
+	   drawGreenLine(startLong,startLat,endLong,endLat);
+   }
+</script>
