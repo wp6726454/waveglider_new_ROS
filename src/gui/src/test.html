@@ -1,7 +1,7 @@
 <html>
 <head>
     <title></title>
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=rCLm5vwlet2mG4SEqeO2isyyM5CsVdIC"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/getscript?v=2.0&ak=rCLm5vwlet2mG4SEqeO2isyyM5CsVdIC"></script>
 </head>
 </html>
 <body>
@@ -12,35 +12,13 @@
     <div style="width:1400px;height:800px;border:1px solid gray" id="allmap"></div>
 </body>
 <script type="text/javascript">
-        // °Ù¶ÈµØÍ¼API¹¦ÄÜ
+        // ç™¾åº¦åœ°å›¾APIåŠŸèƒ½
         var map = new BMap.Map("allmap");
         //var map = new BMap.Map("allmap", { mapType: BMAP_SATELLITE_MAP });
-        var point = new BMap.Point(121.503789, 31.860026);
+        var point = new BMap.Point(121.1324, 31.5643);
         map.centerAndZoom(point, 14);
-        map.enableScrollWheelZoom();                  //ÆôÓÃ¹öÂÖ·Å´óËõĞ¡
-        //¶¨Î»
-        var geolocation = new BMap.Geolocation();
-        geolocation.getCurrentPosition(function (r) {
-            if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-                var mk = new BMap.Marker(r.point);
-                map.addOverlay(mk);
-                map.panTo(r.point);
-                //mk.setAnimation(BMAP_ANIMATION_BOUNCE); //Ìø¶¯µÄ¶¯»­
-                mk.enableDragging();
-                //alert('ÄúµÄÎ»ÖÃ£º' + r.point.lng + ',' + r.point.lat);
-                document.getElementById("jingdu").value = r.point.lng;
-                document.getElementById("weidu").value = r.point.lat;
-            }
-            else {
-                //alert('failed' + this.getStatus());
-            }
-        }, { enableHighAccuracy: true })
-
-        //add city
-        map.addControl(new BMap.CityListControl({
-            anchor: BMAP_ANCHOR_TOP_LEFT
-        }));
-
+        map.enableScrollWheelZoom();                  //å¯ç”¨æ»šè½®æ”¾å¤§ç¼©å°
+    
         //add click
         function showInfo(e) {
             //alert(e.point.lng + ", " + e.point.lat);
@@ -49,13 +27,10 @@
             var mk = new BMap.Marker(e.point);
             map.addOverlay(mk);
             map.panTo(e.point);
-            //mk.setAnimation(BMAP_ANIMATION_BOUNCE); //Ìø¶¯µÄ¶¯»­
-
-
-            deletePoint(); //É¾³ıËùÓĞ±ê×¢
+            //mk.setAnimation(BMAP_ANIMATION_BOUNCE); //è·³åŠ¨çš„åŠ¨ç”»
+            deletePoint(); //åˆ é™¤æ‰€æœ‰æ ‡æ³¨
         }
         map.addEventListener("click", showInfo);
-
         function deletePoint() 
         {
             var allOverlay = map.getOverlays();
@@ -64,72 +39,67 @@
             }
         }
 
-var polyline;
-var flag = 0;
-function  drowLine(point)
-{
-	if (flag)
-	{
-		//alert(flag);
-		polyline.setPath(point);
-	}
-	else
-	{
-		   flag = 1;
-		   polyline =new BMap.Polyline(point, {
-		   //enableEditing: false,//ÊÇ·ñÆôÓÃÏß±à¼­£¬Ä¬ÈÏÎªfalse
-		   //enableClicking: true,//ÊÇ·ñÏìÓ¦µã»÷ÊÂ¼ş£¬Ä¬ÈÏÎªtrue
-		   //icons:[icons],
-		   strokeWeight:'3',//ÕÛÏßµÄ¿í¶È£¬ÒÔÏñËØÎªµ¥Î»
-		   strokeOpacity: 0.8,//ÕÛÏßµÄÍ¸Ã÷¶È£¬È¡Öµ·¶Î§0 - 1
-		   strokeColor:"#18a45b" //ÕÛÏßÑÕÉ«
-		});
-		bm.addOverlay(polyline);
-	}
-	
-}
-
-var marker;
-    //×ø±ê×ª»»ÍêÖ®ºóµÄ»Øµ÷º¯Êı
-    translateCallback = function (data){
-      if(data.status === 0) {
-		
-		if (marker)
-		{
-			marker.setPosition(data.points[0]);
-			poisArray.push(data.points[0]);
-			drowLine(poisArray);
-			if ( poisArray.length >= 10000)	 //·ÀÖ¹ÄÚ´æÒ»Ö±Ôö¼Ó£¬»á¿¨£¬´óÓÚ1wÌõÊ±£¬Çå¿ÕÒ»ÏÂ					
-			{
-				poisArray=[];
-				poisArray.push(data.points[0]);
-			}
-		
-		}
-		else 
-		{
-			poisArray.push(data.points[0]);
-			marker = new BMap.Marker(data.points[0]);					
-			map.addOverlay(marker);
-		}
- 
-        map.setCenter(data.points[0]);
-      }
-    }
- 
-var polylineAttr = [];
-var poisArray = [];
-function doLocal(longitude, latitude)  //¸øqtµ÷ÓÃµÄ½Ó¿Ú
-{
-	var OPoint = new BMap.Point(longitude,latitude);
- 
-	var convertor = new BMap.Convertor();
-	var pointArr = [];
-	pointArr.push(OPoint);
-	convertor.translate(pointArr, 1, 5, translateCallback);	
-}
-
-
 </script>
 
+ <script type="text/javascript" src="qwebchannel.js"></script>
+    <script>
+        window.onload = function () {
+            new QWebChannel(qt.webChannelTransport, function (channel) {
+                window.pyjs = channel.objects.pyjs;
 
+                var startLong = pyjs.Lon_real_get;
+                var startLat = pyjs.Lat_real_get;
+                var endLong = pyjs.Lon_real_get;
+                var endLat = pyjs.Lat_real_get;
+        
+                var linesPoints = null;
+        
+                setInterval(goWay,1000);
+                var carMk;
+                var myIcon = new BMap.Icon("file:///home/wp/waveglider_new/src/gui/src/WG.png", new BMap.Size(5,5), {
+                anchor: new BMap.Size(10,12)});
+
+                });
+        }
+        
+        function goWay(){
+            startLong = endLong;
+            startLat = endLat;
+            endLong = pyjs.Lon_real_get;
+            endLat = pyjs.Lat_real_get;
+            
+            drawIcon(startLong,startLat,endLong,endLat);
+        }
+        
+        function getRound(temp){
+            var i = Math.round(Math.random()*9+1);
+            if(i%2==0){
+                return temp + i*0.0001;
+            }else{
+                return temp - i*0.0001;
+            }
+        }
+        
+        
+        function drawGreenLine(startLong,startLat,endLong,endLat){
+            var polyline = new BMap.Polyline([
+                                                new BMap.Point(startLong,startLat),//èµ·å§‹ç‚¹çš„ç»çº¬åº¦
+                                                new BMap.Point(endLong,endLat)//ç»ˆæ­¢ç‚¹çš„ç»çº¬åº¦
+                                                ], {strokeColor:"green",//è®¾ç½®é¢œè‰² 
+                                                strokeWeight:3, //å®½åº¦
+                                                strokeOpacity:1});//é€æ˜åº¦
+            map.addOverlay(polyline);
+        }
+        
+        
+        function drawIcon(startLong,startLat,endLong,endLat){
+            if(carMk){
+                map.removeOverlay(carMk);
+            }
+            carMk = new BMap.Marker(
+                        new BMap.Point(endLong,endLat),//èµ·å§‹ç‚¹çš„ç»çº¬åº¦
+                        {icon:myIcon});
+            map.addOverlay(carMk);
+            drawGreenLine(startLong,startLat,endLong,endLat);
+        }
+</script>

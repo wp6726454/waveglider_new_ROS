@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #encoding:utf-8  
 '''test ROS Node'''
 # license removed for brevity
@@ -7,12 +7,14 @@ import numpy as np
 import sys
 import json
 from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer, QCoreApplication, QDateTime
+#from PyQt5.QtWebChannel import QWebChannel
 from RMS import Ui_RMS
 from gui.msg import pf
 from std_msgs.msg import Float32MultiArray
 from CoordinateTransfer import millerToXY
-from std_msgs.msg import String, Int8
+from std_msgs.msg import String, Int8, Float64
 
 
 
@@ -23,7 +25,10 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.setupUi(self)
         self.PrepWidgets()
         self.Timer=QTimer()
+        self.Lon_real_get = 0
+        self.Lat_real_get = 0
         self.CallBackFunctions()
+        self.map_show()
         self.textEdit.setText("Please input setpoint or waypoints")
         #创建节点
         rospy.init_node('RMS_UI', anonymous=True)
@@ -31,12 +36,18 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.flag_pub = rospy.Publisher('/flag', Int8, queue_size=10)
         #Realposition订阅者创建
         rospy.Subscriber("/position_real", Float32MultiArray, self.Position_show)
+        rospy.Subscriber("/tempreture", Float64, self.Tempreture_show)
+        rospy.Subscriber("/pressure", Float64, self.Pressure_show)
         #positionkeeping发布者创建
         self.positionkeeping_pub = rospy.Publisher('/set_point', Float32MultiArray, queue_size=10)
         #pathfollowing发布者创建
         self.pathfollowing_pub = rospy.Publisher('/waypoints', pf, queue_size=10)
         #创建一个启动螺旋桨的flag
         self.switch_pub = rospy.Publisher('/switch', Int8, queue_size=10)
+
+    def map_show(self):
+        self.map.load(QtCore.QUrl("file:////home/wp/waveglider_new/src/gui/src/test.html"))
+
 
     def PrepWidgets(self):
         self.checkBox_1.setEnabled(False)
@@ -60,6 +71,9 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.Lat_real.setEnabled(False)
         self.Lon_real.setEnabled(False)
         self.Date.setEnabled(False)
+        self.pressure.setEnabled(False)
+        self.tempreture.setEnabled(False)
+        self.wind.setEnabled(False)
         self.PushButton_quit.setText('Quit')
 
     def Start(self):
@@ -141,14 +155,28 @@ class RMS_show(QMainWindow,Ui_RMS):
 
 
     def Position_show(self,data):
-        Lon_real_get = data.data[0]
-        Lat_real_get = data.data[1]
-        position=[Lon_real_get,Lat_real_get]
+        self.Lon_real_get = data.data[0]
+        self.Lat_real_get = data.data[1]
+        position=[self.Lon_real_get,self.Lat_real_get]
         position_real='position_real.json'
         with open(position_real,'a') as position_obj:
             position_obj.write('\n'+str(position))
-        self.Lat_real.setText(str(Lat_real_get))
-        self.Lon_real.setText(str(Lon_real_get))
+        self.Lat_real.setText(str(self.Lat_real_get))
+        self.Lon_real.setText(str(self.Lon_real_get))
+
+    def Tempreture_show(self,data):
+        temp = data.data
+        tempre='tempreture.json'
+        with open(tempre,'a') as temp_obj:
+            temp_obj.write('\n'+str(temp))
+        self.tempreture.setText(str(temp))
+
+    def Pressure_show(self,data):
+        pressure = data.data
+        pre='pre.json'
+        with open(pre,'a') as pre_obj:
+            pre_obj.write('\n'+str(pressure))
+        self.pressure.setText(str(pressure))
 
     def Suspend(self):
         self.Timer.stop()
@@ -188,6 +216,8 @@ if __name__ == '__main__':
             app = QApplication(sys.argv)
             ui=RMS_show()
             ui.show()
+            #channel = QWebChannel()
+            #channel.registerObject('pyjs', ui)
             sys.exit(app.exec_())
         except rospy.ROSInterruptException:
             pass
