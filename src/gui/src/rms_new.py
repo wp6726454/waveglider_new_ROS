@@ -6,10 +6,12 @@ import rospy
 import numpy as np
 import sys
 import json
+import time
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer, QCoreApplication, QDateTime
-#from PyQt5.QtWebChannel import QWebChannel
+from PyQt5.QtWebChannel import QWebChannel
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from RMS import Ui_RMS
 from gui.msg import pf
 from std_msgs.msg import Float32MultiArray
@@ -27,8 +29,12 @@ class RMS_show(QMainWindow,Ui_RMS):
         self.Timer=QTimer()
         self.Lon_real_get = 0
         self.Lat_real_get = 0
+        self.windspeed = 0
+        self.winddirection = 0
+        self.realcourse = 0
+        self.desiredcourse = 0
         self.CallBackFunctions()
-        self.map_show()
+        #self.map_show()
         self.textEdit.setText("Please input setpoint or waypoints")
         #创建节点
         rospy.init_node('RMS_UI', anonymous=True)
@@ -38,6 +44,10 @@ class RMS_show(QMainWindow,Ui_RMS):
         rospy.Subscriber("/position_real", Float32MultiArray, self.Position_show)
         rospy.Subscriber("/tempreture", Float64, self.Tempreture_show)
         rospy.Subscriber("/pressure", Float64, self.Pressure_show)
+        rospy.Subscriber("/windspeed", Float64, self.windspeed_show)
+        rospy.Subscriber("/winddirection", Float64, self.windstorage)
+        rospy.Subscriber('/course_real', Float64, self.Realcourse)
+        rospy.Subscriber("/course_desired", Float64, self.Desiredcourse)
         #positionkeeping发布者创建
         self.positionkeeping_pub = rospy.Publisher('/set_point', Float32MultiArray, queue_size=10)
         #pathfollowing发布者创建
@@ -45,8 +55,9 @@ class RMS_show(QMainWindow,Ui_RMS):
         #创建一个启动螺旋桨的flag
         self.switch_pub = rospy.Publisher('/switch', Int8, queue_size=10)
 
-    def map_show(self):
-        self.map.load(QtCore.QUrl("file:////home/wp/waveglider_new/src/gui/src/test.html"))
+        #测试
+    def myHello(self):
+        print('call received')
 
 
     def PrepWidgets(self):
@@ -157,7 +168,7 @@ class RMS_show(QMainWindow,Ui_RMS):
     def Position_show(self,data):
         self.Lon_real_get = data.data[0]
         self.Lat_real_get = data.data[1]
-        position=[self.Lon_real_get,self.Lat_real_get]
+        position=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),self.Lon_real_get,self.Lat_real_get]
         position_real='position_real.json'
         with open(position_real,'a') as position_obj:
             position_obj.write('\n'+str(position))
@@ -166,17 +177,40 @@ class RMS_show(QMainWindow,Ui_RMS):
 
     def Tempreture_show(self,data):
         temp = data.data
+        temp_1 = [time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),data.data]
         tempre='tempreture.json'
         with open(tempre,'a') as temp_obj:
-            temp_obj.write('\n'+str(temp))
+            temp_obj.write('\n'+str(temp_1))
         self.tempreture.setText(str(temp))
 
     def Pressure_show(self,data):
         pressure = data.data
+        pressure_1 = [time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),data.data]
         pre='pre.json'
         with open(pre,'a') as pre_obj:
-            pre_obj.write('\n'+str(pressure))
+            pre_obj.write('\n'+str(pressure_1))
         self.pressure.setText(str(pressure))
+
+    def windspeed_show(self,data):
+        self.windspeed = data.data
+        self.wind.setText(str(self.windspeed))
+
+    def windstorage(self,data):
+        self.winddirection = data.data
+        wind = [time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),self.winddirection,self.windspeed]
+        win='wind.json'
+        with open(win,'a') as wind_obj:
+            wind_obj.write('\n'+str(wind))
+
+    def Realcourse(self,data):
+        self.realcourse = data.data
+
+    def Desiredcourse(self,data):
+        self.desiredcourse = data.data
+        course = [time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())),self.realcourse,self.desiredcourse]
+        cour='course.json'
+        with open(cour,'a') as course_obj:
+            course_obj.write('\n'+str(course))
 
     def Suspend(self):
         self.Timer.stop()
@@ -215,9 +249,11 @@ if __name__ == '__main__':
         try:
             app = QApplication(sys.argv)
             ui=RMS_show()
+            channel = QWebChannel()
+            channel.registerObject('pyjs', ui)
+            ui.map.page().setWebChannel(QWebChannel())
+            ui.map.load(QtCore.QUrl("file:///home/wp/waveglider_new/src/gui/src/test.html"))
             ui.show()
-            #channel = QWebChannel()
-            #channel.registerObject('pyjs', ui)
             sys.exit(app.exec_())
         except rospy.ROSInterruptException:
             pass
